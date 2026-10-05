@@ -163,7 +163,24 @@ void main() {
   );
 
   platformTestWidgets(
-    'Android: el arrastre desde el borde no regresa',
+    'Android: el arrastre desde el borde izquierdo regresa',
+    TargetPlatform.android,
+    (tester) async {
+      await pumpApp(tester);
+
+      router.push('/second');
+      await tester.pumpAndSettle();
+      expect(find.text('second'), findsOneWidget);
+
+      await swipeBack(tester);
+
+      expect(find.text('second'), findsNothing);
+      expect(find.text('first'), findsOneWidget);
+    },
+  );
+
+  platformTestWidgets(
+    'Android: un arrastre incompleto se cancela y no regresa',
     TargetPlatform.android,
     (tester) async {
       await pumpApp(tester);
@@ -171,15 +188,76 @@ void main() {
       router.push('/second');
       await tester.pumpAndSettle();
 
-      await swipeBack(tester);
+      await tester.dragFrom(_edgeStart, const Offset(40, 0));
+      await tester.pumpAndSettle();
 
       expect(find.text('second'), findsOneWidget);
     },
   );
 
   platformTestWidgets(
-    'Android: el arrastre desde el borde tampoco mueve la pantalla',
+    'Android: la pantalla sigue al dedo durante el arrastre',
     TargetPlatform.android,
+    (tester) async {
+      await pumpApp(tester);
+
+      router.push('/second');
+      await tester.pumpAndSettle();
+      expect(secondScreenX(tester), 400);
+
+      final gesture = await tester.startGesture(_edgeStart);
+      await gesture.moveBy(const Offset(200, 0));
+      await tester.pump();
+
+      expect(secondScreenX(tester), 600);
+      expect(fadeOf(tester), 1.0);
+
+      await gesture.up();
+      await tester.pumpAndSettle();
+
+      expect(find.text('second'), findsOneWidget);
+      expect(secondScreenX(tester), 400);
+    },
+  );
+
+  platformTestWidgets(
+    'Android: sin historial el arrastre del borde no hace nada',
+    TargetPlatform.android,
+    (tester) async {
+      await pumpApp(tester);
+
+      await swipeBack(tester);
+
+      expect(find.text('first'), findsOneWidget);
+    },
+  );
+
+  platformTestWidgets(
+    'Android: el botón de retroceso conserva el fade sin deslizamiento',
+    TargetPlatform.android,
+    (tester) async {
+      await pumpApp(tester);
+
+      router.push('/second');
+      await tester.pumpAndSettle();
+
+      router.pop();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // Igual que en iOS: el botón no arrastra la pantalla de lado.
+      expect(secondScreenX(tester), 400);
+      expect(fadeOf(tester), lessThan(1.0));
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('first'), findsOneWidget);
+    },
+  );
+
+  platformTestWidgets(
+    'Otras plataformas: el arrastre desde el borde no hace nada',
+    TargetPlatform.linux,
     (tester) async {
       await pumpApp(tester);
 

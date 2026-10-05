@@ -29,6 +29,15 @@ final Tween<Offset> _kExitOffsetTween = Tween<Offset>(
   end: Offset.zero,
 );
 
+/// Plataformas en las que existe el gesto interactivo de retroceso desde el
+/// borde izquierdo: iOS y Android.
+bool get _isBackGesturePlatform {
+  return switch (defaultTargetPlatform) {
+    TargetPlatform.iOS || TargetPlatform.android => true,
+    _ => false,
+  };
+}
+
 /// Curva de la entrada, idéntica a la que usaba el router antes de este cambio.
 /// Como en el router original, también es la curva de la salida cuando el
 /// retroceso no lo provoca el gesto: fade más el mismo leve slide vertical.
@@ -41,10 +50,10 @@ const Curve _kBackGestureSettleCurve = Curves.fastEaseInToSlowEaseOut;
 /// Página usada por el router.
 ///
 /// Conserva intacta la animación original (fade más micro slide vertical, al
-/// entrar y al salirse) y únicamente añade, en iOS, el gesto interactivo de
-/// retroceso desde el borde izquierdo. Ese gesto es la única interacción por
-/// gestos que se habilita: no hay gestos de avance ni gestos de otro tipo, y
-/// es lo único que introduce el deslizamiento horizontal.
+/// entrar y al salirse) y únicamente añade, en iOS y Android, el gesto
+/// interactivo de retroceso desde el borde izquierdo. Ese gesto es la única
+/// interacción por gestos que se habilita: no hay gestos de avance ni gestos
+/// de otro tipo, y es lo único que introduce el deslizamiento horizontal.
 class FadeSlidePage<T> extends Page<T> {
   const FadeSlidePage({
     required this.child,
@@ -67,14 +76,12 @@ class FadeSlidePage<T> extends Page<T> {
 ///
 /// La entrada y la salida conservan la animación de siempre: fade más un leve
 /// slide vertical. La única diferencia es el gesto de retroceso del borde
-/// izquierdo de iOS, que además permite arrastrar la pantalla hacia un lado
-/// mientras se decide si el retroceso se completa o se cancela.
+/// izquierdo de iOS y Android, que además permite arrastrar la pantalla hacia
+/// un lado mientras se decide si el retroceso se completa o se cancela.
 class FadeSlidePageRoute<T> extends PageRoute<T> {
   FadeSlidePageRoute(FadeSlidePage<T> page) : super(settings: page);
 
   FadeSlidePage<T> get _page => settings as FadeSlidePage<T>;
-
-  bool get _isIos => defaultTargetPlatform == TargetPlatform.iOS;
 
   /// `true` desde que el dedo empieza a arrastrar la pantalla hasta que el
   /// gesto se asienta, ya sea volviendo a su sitio o completando el retroceso.
@@ -91,10 +98,9 @@ class FadeSlidePageRoute<T> extends PageRoute<T> {
   /// mover la transición, igual que hace el gesto nativo de iOS.
   AnimationController? get routeAnimationController => controller;
 
-  /// El gesto de retroceso solo existe en iOS, únicamente en la pantalla
-  /// visible y solo cuando hay algo a lo que volver.
-  bool get isBackGestureEnabled =>
-      defaultTargetPlatform == TargetPlatform.iOS && popGestureEnabled;
+  /// El gesto de retroceso solo existe en iOS y Android, únicamente en la
+  /// pantalla visible y solo cuando hay algo a lo que volver.
+  bool get isBackGestureEnabled => _isBackGesturePlatform && popGestureEnabled;
 
   @override
   Duration get transitionDuration => const Duration(milliseconds: 300);
@@ -172,16 +178,19 @@ class FadeSlidePageRoute<T> extends PageRoute<T> {
     Animation<double> secondaryAnimation,
     Widget child,
   ) {
-    // En iOS la franja del borde vive dentro de la transición para que viaje
-    // junto con la pantalla. En el resto de plataformas no se añade nada.
-    final Widget content =
-        _isIos ? _IosBackGestureStrip<T>(route: this, child: child) : child;
+    // En iOS y Android la franja del borde vive dentro de la transición para
+    // que viaje junto con la pantalla. En el resto de plataformas no se añade
+    // nada.
+    final Widget content = _isBackGesturePlatform
+        ? _BackGestureStrip<T>(route: this, child: child)
+        : child;
 
-    // El deslizamiento horizontal es exclusivo de iOS y solo existe mientras el
-    // gesto de arrastrar la pantalla está en marcha. Cualquier otro retroceso
-    // (el botón, `context.pop()`, un `pop()` del sistema) usa la animación
-    // original: fade más el leve slide vertical.
-    final bool isBackGestureSliding = _isIos && _isBackGestureInProgress;
+    // El deslizamiento horizontal es exclusivo del gesto de retroceso y solo
+    // existe mientras el gesto de arrastrar la pantalla está en marcha.
+    // Cualquier otro retroceso (el botón, `context.pop()`, un `pop()` del
+    // sistema) usa la animación original: fade más el leve slide vertical.
+    final bool isBackGestureSliding =
+        _isBackGesturePlatform && _isBackGestureInProgress;
 
     // Durante el arrastre la posición sigue al dedo sin curvas; al soltar el
     // dedo toma la curva de iOS.
@@ -208,19 +217,18 @@ class FadeSlidePageRoute<T> extends PageRoute<T> {
 }
 
 /// Franja invisible en el borde izquierdo que detecta el arrastre de retroceso.
-class _IosBackGestureStrip<T> extends StatefulWidget {
-  const _IosBackGestureStrip({required this.route, required this.child});
+class _BackGestureStrip<T> extends StatefulWidget {
+  const _BackGestureStrip({required this.route, required this.child});
 
   final FadeSlidePageRoute<T> route;
   final Widget child;
 
   @override
-  State<_IosBackGestureStrip<T>> createState() =>
-      _IosBackGestureStripState<T>();
+  State<_BackGestureStrip<T>> createState() => _BackGestureStripState<T>();
 }
 
-class _IosBackGestureStripState<T> extends State<_IosBackGestureStrip<T>> {
-  _IosBackGestureController<T>? _gestureController;
+class _BackGestureStripState<T> extends State<_BackGestureStrip<T>> {
+  _BackGestureController<T>? _gestureController;
 
   late final HorizontalDragGestureRecognizer _recognizer;
 
@@ -240,7 +248,7 @@ class _IosBackGestureStripState<T> extends State<_IosBackGestureStrip<T>> {
 
     // Si el widget desaparece a mitad del gesto hay que cerrar el gesto de
     // usuario que el Navigator tiene abierto.
-    final _IosBackGestureController<T>? gestureController = _gestureController;
+    final _BackGestureController<T>? gestureController = _gestureController;
     if (gestureController != null) {
       _gestureController = null;
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -269,7 +277,7 @@ class _IosBackGestureStripState<T> extends State<_IosBackGestureStrip<T>> {
 
   void _handleDragEnd(DragEndDetails details) {
     final double? width = context.size?.width;
-    final _IosBackGestureController<T>? gestureController = _gestureController;
+    final _BackGestureController<T>? gestureController = _gestureController;
     _gestureController = null;
     if (width == null || width == 0) {
       gestureController?.dragEnd(0.0);
@@ -281,7 +289,7 @@ class _IosBackGestureStripState<T> extends State<_IosBackGestureStrip<T>> {
   }
 
   void _handleDragCancel() {
-    final _IosBackGestureController<T>? gestureController = _gestureController;
+    final _BackGestureController<T>? gestureController = _gestureController;
     _gestureController = null;
     gestureController?.dragEnd(0.0);
   }
@@ -292,13 +300,13 @@ class _IosBackGestureStripState<T> extends State<_IosBackGestureStrip<T>> {
     }
   }
 
-  _IosBackGestureController<T> _startBackGesture() {
+  _BackGestureController<T> _startBackGesture() {
     final AnimationController? controller =
         widget.route.routeAnimationController;
     final NavigatorState? navigator = widget.route.navigator;
     assert(controller != null && navigator != null);
     widget.route.setBackGestureInProgress(true);
-    return _IosBackGestureController<T>(
+    return _BackGestureController<T>(
       navigator: navigator!,
       controller: controller!,
       getIsCurrent: () => widget.route.isCurrent,
@@ -348,8 +356,8 @@ class _IosBackGestureStripState<T> extends State<_IosBackGestureStrip<T>> {
 ///
 /// Trabaja en coordenadas lógicas: `1.0` es la pantalla encima y `0.0` la
 /// pantalla descartada.
-class _IosBackGestureController<T> {
-  _IosBackGestureController({
+class _BackGestureController<T> {
+  _BackGestureController({
     required this.navigator,
     required this.controller,
     required this.getIsCurrent,
