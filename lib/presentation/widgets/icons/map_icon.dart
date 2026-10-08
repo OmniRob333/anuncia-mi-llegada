@@ -17,8 +17,8 @@ class MapIcon extends StatelessWidget {
           child: Image(
             key: ValueKey<String>(assetPath),
             image: AssetImage(assetPath),
-            width: 92,
-            height: 95,
+            width: 80,
+            height: 80,
           ),
         );
       },
