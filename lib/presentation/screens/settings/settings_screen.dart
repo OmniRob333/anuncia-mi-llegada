@@ -168,17 +168,17 @@ class _CustomListTitleState extends State<_CustomListTitle> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 19.0,
-                  vertical: 12.0,
+                  vertical: 10.0,
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     SizedBox(
-                      width: 70,
+                      width: 66,
                       height: 90,
                       child: widget.menuItem.icon,
                     ),
-                    SizedBox(width: theWidthOfYourScreen * 0.08),
+                    SizedBox(width: theWidthOfYourScreen * 0.06),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

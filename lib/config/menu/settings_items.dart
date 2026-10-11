@@ -639,8 +639,8 @@ class AppearanceIcon extends StatelessWidget {
         //Icon
         SvgPicture.asset(
           'assets/icons/config_icons/apariencia.svg',
-          width: 100,
-          height: 100,
+          width: 66,
+          height: 66,
           fit: BoxFit.contain,
         ),
 
