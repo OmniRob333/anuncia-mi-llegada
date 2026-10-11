@@ -18,7 +18,7 @@ class SettingsScreenLayout extends StatelessWidget {
     bottom: false,
     child: Column(
       children: [
-        const SizedBox(height: 30),
+        const SizedBox(height: 25),
         Stack(
           children: [
             Center(child: GearIcon()),
@@ -26,13 +26,13 @@ class SettingsScreenLayout extends StatelessWidget {
           Align(
             alignment: Alignment.centerLeft,
             child: Padding(
-              padding: const EdgeInsets.only(left: 28, top: 20),
+              padding: const EdgeInsets.only(left: 28, top: 13),
               child: KeyboardReturnButton(),
             ),
           ),
           ],
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 10),
         //Opciones
           Expanded(child: settingsView),
       ],

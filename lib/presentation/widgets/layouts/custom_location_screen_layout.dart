@@ -23,7 +23,7 @@ class CustomLocationScreenLayout extends StatelessWidget {
           children: [
             Column(
               children: [
-                const Spacer(),
+                const SizedBox(height: 25),
                 Stack(
                   children: [
                     //MapIcon
@@ -34,7 +34,7 @@ class CustomLocationScreenLayout extends StatelessWidget {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Padding(
-                        padding: const EdgeInsets.only(left: 28, top: 30),
+                        padding: const EdgeInsets.only(left: 28, top: 13),
                         child: KeyboardReturnButton(),
                       ),
                     ),
@@ -44,7 +44,7 @@ class CustomLocationScreenLayout extends StatelessWidget {
                     Align(
                       alignment: Alignment.centerRight,
                       child: Padding(
-                        padding: const EdgeInsets.only(right: 38, top: 30),
+                        padding: const EdgeInsets.only(right: 38, top: 13),
                         child: HistoryButton(),
                       ),
                     ),

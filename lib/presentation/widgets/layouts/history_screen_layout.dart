@@ -18,7 +18,7 @@ class HistoryScreenLayout extends StatelessWidget {
       bottom: false,
       child: Column(
         children: [
-          const SizedBox(height: 30),
+          const SizedBox(height: 25),
           Stack(
             children: [
               //RecordIcon
@@ -28,7 +28,7 @@ class HistoryScreenLayout extends StatelessWidget {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 28, top: 20),
+                  padding: const EdgeInsets.only(left: 28, top: 8),
                   child: KeyboardReturnButton(),
                 ),
               ),
@@ -36,7 +36,7 @@ class HistoryScreenLayout extends StatelessWidget {
               Align(
               alignment: Alignment.centerRight,
               child: Padding(
-                padding: const EdgeInsets.only(right: 28, top: 20),
+                padding: const EdgeInsets.only(right: 28, top: 8),
                 child: SettingsButton(),
               ),
             ),
