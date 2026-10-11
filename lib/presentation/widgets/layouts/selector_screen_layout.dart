@@ -11,7 +11,7 @@ class SelectorScreenLayout extends StatelessWidget {
   final VoidCallback? onReturnTap;
 
   //Separación entre el borde superior de la pantalla y el ícono del mapa
-  static const double _topSpacing = 40;
+  static const double _topSpacing = 25;
   //Separación mínima entre el selector y el ícono del mapa / el botón de retroceder
   static const double _selectorSpacing = 16;
   //Separación simétrica del botón de retroceder: 40px arriba y 40px abajo
@@ -50,7 +50,7 @@ class SelectorScreenLayout extends StatelessWidget {
             Align(
               alignment: Alignment.centerRight,
               child: Padding(
-                padding: const EdgeInsets.only(right: 38, top: 30),
+                padding: const EdgeInsets.only(right: 38, top: 16),
                 child: HistoryButton(),
               ),
             ),
