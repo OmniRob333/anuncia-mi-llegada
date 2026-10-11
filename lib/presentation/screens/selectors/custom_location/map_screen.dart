@@ -345,15 +345,17 @@ class _MapScreenState extends State<MapScreen> {
                 ),
               ),
             ),
-          Padding(
-            padding: const EdgeInsets.only(top: 680.0),
-            child: Center(
+          Align(
+            alignment: AlignmentGeometry.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 60.0),
               child: CustomButton(
                 forcedColor: isTrueDarkMode.value 
                 ? const Color.fromARGB(255, 33, 16, 3)
                 : Color(0xFFF69346),
                 textOfButton: Text(
-                  'Confirmar ubicación',
+                  'Confirmar \nubicación',
+                  textAlign: TextAlign.center,
                   style: AppTheme.nunitoFamilyCustomButton.copyWith(
                     fontSize: 17,
                   ),
