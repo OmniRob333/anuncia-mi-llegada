@@ -1,5 +1,6 @@
 import 'package:anuncia_mi_llegada/config/preferences/preferences_service.dart';
 import 'package:anuncia_mi_llegada/theme/app_theme.dart';
+import 'package:anuncia_mi_llegada/utils/platform_dialog_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inner_shadow/flutter_inner_shadow.dart';
 
@@ -40,7 +41,23 @@ class ResetButton extends StatelessWidget {
                   child: InkWell(
                     highlightColor: Colors.transparent,
                     splashColor: Colors.transparent,
-                    onTap: onTap ?? PreferencesService.resetAll,
+                    onTap:
+                        onTap ??
+                        () => showPlatformDialog(
+                          context: context,
+                          title: '¿Estás seguro de continuar?',
+                          content:
+                              'Si lo haces, tus configuraciones personalizadas se restablecerán a su valor predeterminado',
+                          actions: [
+                            PlatformDialogAction(text: 'Rechazar'),
+                            PlatformDialogAction(
+                              text: 'Continuar',
+                              onPressed: () {
+                                PreferencesService.resetAll();
+                              },
+                            ),
+                          ],
+                        ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
