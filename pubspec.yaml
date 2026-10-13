@@ -74,6 +74,7 @@ flutter:
     - assets/icons/history_icons/
     - assets/icons/custom_location_icons/
     - assets/data/
+    - assets/data/ubications/
     - assets/fonts/
 
   # An image asset can refer to one or more resolution-specific "variants", see
