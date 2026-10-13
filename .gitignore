@@ -50,3 +50,4 @@ app.*.map.json
 # Mapbox: token de acceso (nunca se sube al repo)
 mapbox.env
 ios/Flutter/mapbox_token.xcconfig
+repomix-output.xml
