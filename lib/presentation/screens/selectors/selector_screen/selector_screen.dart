@@ -168,7 +168,7 @@ class _SelectorScreenState extends State<SelectorScreen> {
   // ------------------------------------------
 
   // Función de mandar el mensaje a la app elegida por el usuario
-  Future<bool> sendMessage(String mensajeFinal) async {
+  Future<SendMessageResult> sendMessage(String mensajeFinal) async {
     return await SendMessageHelper.sendMessage(mensajeFinal);
   }
   // ------------------------------------------
@@ -287,11 +287,11 @@ class _SelectorScreenState extends State<SelectorScreen> {
                         '$messageBody $whichLineDIdYouChoosed ${line.lineNameInMessage}';
                   }
 
-                  final bool success = await SendMessageHelper.sendMessage(
+                  final result = await SendMessageHelper.sendMessage(
                     mensajeFinal,
                   );
 
-                  if (success) {
+                  if (result == SendMessageResult.succes) {
                     final newHistoryItem = HistoryItems(
                       id: DateTime.now().millisecondsSinceEpoch.toString(),
                       stationName: line.lineNameInMessage,
@@ -332,11 +332,11 @@ class _SelectorScreenState extends State<SelectorScreen> {
                     mensajeFinal = '$messageBody $station';
                   }
 
-                  final bool success = await SendMessageHelper.sendMessage(
+                  final result = await SendMessageHelper.sendMessage(
                     mensajeFinal,
                   );
 
-                  if (success) {
+                  if (result == SendMessageResult.succes) {
                     final newHistoryItem = HistoryItems(
                       id: DateTime.now().millisecondsSinceEpoch.toString(),
                       stationName: station,
@@ -346,6 +346,11 @@ class _SelectorScreenState extends State<SelectorScreen> {
                       messageTime: DateTime.now(),
                     );
                     await PreferencesService.saveToHistoryItems(newHistoryItem);
+                  } else if (mounted) {
+                    await SendMessageHelper().showSendMessageError(
+                      context,
+                      result,
+                    );
                   }
                 },
               ),
