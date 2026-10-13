@@ -1,3 +1,4 @@
+import 'package:anuncia_mi_llegada/config/connectivity/connectivity_service.dart';
 import 'package:anuncia_mi_llegada/config/mapbox_config.dart';
 import 'package:anuncia_mi_llegada/config/preferences/preferences_service.dart';
 import 'package:flutter/cupertino.dart';
@@ -16,10 +17,12 @@ Future<void> main() async {
     MapboxOptions.setAccessToken(mapboxAccessToken);
   }
   await PreferencesService.init();
+  await ConnectivityService.init();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+
   runApp(const AnunciaMiLlegadaApp());
 }
 
