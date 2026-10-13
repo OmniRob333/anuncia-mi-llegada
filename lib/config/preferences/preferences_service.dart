@@ -33,8 +33,9 @@ class PreferencesService {
   static const bool defaultWillBeShowedLineNamesInMessage = true;
   static const bool defaultWillBeShowedInstitutionsName = true;
   static const String defaultWhatMessagingAppYouWillUse = messagingAppSms;
+  static const bool defaultDetectNearbyStation = true;
 
-  //Variables
+  //------- ValueNotifiers: -------
   static final isTrueDarkMode = ValueNotifier<bool>(defaultIsTrueDarkMode);
   static final messageBody = ValueNotifier<String>(defaultMessageBody);
 
@@ -50,21 +51,34 @@ class PreferencesService {
     defaultWillBeShowedInstitutionsName,
   );
 
+  static final detectNearbyStation = 
+    ValueNotifier<bool>(defaultDetectNearbyStation);
+
   static final whatMessagingAppYouWillUse = ValueNotifier<String>(
     defaultWhatMessagingAppYouWillUse,
   );
 
   static final historyList = ValueNotifier<List<HistoryItems>>([]);
 
-  ///Indica si alguna configuración difiere de su valor de fábrica.
+  //--------------------------------
+
+  // ------- hasModifiedSettings: Indica si alguna configuración difiere de su valor de fábrica. -------
   static bool get hasModifiedSettings =>
+
       isTrueDarkMode.value != defaultIsTrueDarkMode ||
+
       messageBody.value != defaultMessageBody ||
+
       willBeShowedTransportName.value != defaultWillBeShowedTransportName ||
+
       willBeShowedLineNamesInMessage.value !=
           defaultWillBeShowedLineNamesInMessage ||
+
       willBeShowedInstitutionsName.value !=
           defaultWillBeShowedInstitutionsName ||
+
+      detectNearbyStation.value != defaultDetectNearbyStation ||
+
       whatMessagingAppYouWillUse.value != defaultWhatMessagingAppYouWillUse;
 
   ///Normaliza un valor de app de mensajería guardado o seleccionado.
@@ -101,6 +115,10 @@ class PreferencesService {
     willBeShowedInstitutionsName.value =
         _preferences.getBool('willBeShowedInstitutionsName') ??
         defaultWillBeShowedInstitutionsName;
+
+    detectNearbyStation.value =
+        _preferences.getBool('detectNearbyStation') ??
+        defaultDetectNearbyStation;
 
     isTrueDarkMode.addListener(() {
       _preferences.setBool('isTrueDarkMode', isTrueDarkMode.value);
@@ -158,6 +176,11 @@ class PreferencesService {
     await _preferences.setString('whatMessagingAppYouWillUse', resolved);
   }
 
+  static Future<void> setDetectNearbyStation(bool value) async {
+    detectNearbyStation.value = value;
+    await _preferences.setBool('detectNearbyStation', value);
+  }
+
   //Guardar los nuevos mensajes al RecordItems
   static Future<void> saveToHistoryItems(HistoryItems newItem) async {
     final updateList = [newItem, ...historyList.value];
@@ -173,6 +196,18 @@ class PreferencesService {
     await _preferences.remove('app_history');
   }
 
+  //Borrar un elemento del historial
+  static Future<void> deleteHistoryItem(String id) async {
+    final updateList = historyList.value
+        .where((item) => item.id != id)
+        .toList();
+    historyList.value = updateList;
+
+    final stringList = updateList.map((item) => item.toJson()).toList();
+    await _preferences.setStringList('app_history', stringList);
+  }
+
+
   // Restablecimiento de todas las configuraciones a su estado original
   static Future<void> resetAll() async {
     isTrueDarkMode.value = defaultIsTrueDarkMode;
@@ -187,6 +222,8 @@ class PreferencesService {
     willBeShowedInstitutionsName.value = defaultWillBeShowedInstitutionsName;
 
     whatMessagingAppYouWillUse.value = defaultWhatMessagingAppYouWillUse;
+
+    detectNearbyStation.value = defaultDetectNearbyStation;
 
     await _preferences.setBool('isTrueDarkMode', defaultIsTrueDarkMode);
     await _preferences.setString('messageBody', defaultMessageBody);
@@ -206,5 +243,11 @@ class PreferencesService {
       'whatMessagingAppYouWillUse',
       defaultWhatMessagingAppYouWillUse,
     );
+
+    await _preferences.setBool(
+      'detectNearbyStation',
+      defaultDetectNearbyStation,
+    );
+
   }
 }
